@@ -12,23 +12,23 @@
 
 <style>
 :root {
-  --bg:       #1a0a0a;
-  --bg2:      #2d0f0f;
-  --bg3:      #401515;
-  --bg4:      #501a1a;
-  --bg5:      #6a2525;
-  --border:   rgba(255,100,100,.08);
-  --border2:  rgba(255,100,100,.15);
-  --border3:  rgba(255,100,100,.22);
-  --cyan:     #4dd9ff;
-  --pink:     #ff4757;
-  --gold:     #ffa502;
-  --emerald:  #26de81;
-  --violet:   #ee5a6f;
-  --red:      #ff4757;
-  --text:     #ffe5e5;
-  --text2:    #cc8080;
-  --text3:    #804040;
+  --bg:       #06101e;
+  --bg2:      #0a1828;
+  --bg3:      #0e2035;
+  --bg4:      #122540;
+  --bg5:      #172d4e;
+  --border:   rgba(255,255,255,.07);
+  --border2:  rgba(255,255,255,.13);
+  --border3:  rgba(255,255,255,.20);
+  --cyan:     #22d3ee;
+  --pink:     #f472b6;
+  --gold:     #fbbf24;
+  --emerald:  #10b981;
+  --violet:   #a78bfa;
+  --red:      #f87171;
+  --text:     #e2ecff;
+  --text2:    #7a9ac0;
+  --text3:    #3e5878;
   --fh: 'Bebas Neue', 'Impact', sans-serif;
   --fb: 'Rajdhani', 'Trebuchet MS', sans-serif;
   --fm: 'Fira Code', 'Courier New', monospace;
@@ -1105,14 +1105,6 @@ a { color: inherit; text-decoration: none; }
 /* ════════════════════════════════════════
    FIREBASE CONFIG — REPLACE WITH YOUR KEYS
 ════════════════════════════════════════ */
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyAzsbnhNIz3xP206pwAdQXdI5ZneF_HUio",
   authDomain: "cybersagesaga-68c21.firebaseapp.com",
@@ -1124,11 +1116,34 @@ const firebaseConfig = {
   measurementId: "G-LEVYG7Y1M5"
 };
 
+// Check if Firebase is configured
+let auth, db;
+let isFirebaseConfigured = false;
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.database();
+try {
+  if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+    firebase.initializeApp(firebaseConfig);
+    auth = firebase.auth();
+    db = firebase.database();
+    isFirebaseConfigured = true;
+  } else {
+    console.warn('⚠️ Firebase config not set up. Using demo mode.');
+    // Create mock auth/db for demo
+    auth = {
+      signInWithEmailAndPassword: () => Promise.resolve(),
+      signOut: () => Promise.resolve(),
+      onAuthStateChanged: (cb) => cb(null),
+      currentUser: null
+    };
+    db = {
+      ref: () => ({ on: () => {}, push: () => Promise.resolve() })
+    };
+    isFirebaseConfigured = false;
+  }
+} catch (e) {
+  console.error('Firebase initialization error:', e);
+  showToast('⚠️ Firebase not configured. Using demo mode. See docs.', '#fbbf24');
+}
 
 /* ════════════════════════════════════════
    DATA & STATE
@@ -1175,14 +1190,16 @@ const TRENDING = [
 /* ════════════════════════════════════════
    AUTH
 ════════════════════════════════════════ */
-auth.onAuthStateChanged(user => {
-  currentUser = user;
-  updateAuthUI();
-  if (user) {
-    loadArticles();
-    loadSubscribers();
-  }
-});
+if (isFirebaseConfigured) {
+  auth.onAuthStateChanged(user => {
+    currentUser = user;
+    updateAuthUI();
+    if (user) {
+      loadArticles();
+      loadSubscribers();
+    }
+  });
+}
 
 function updateAuthUI() {
   const adminBtn = document.getElementById('admin-btn-main');
@@ -1208,13 +1225,32 @@ function showAdminOrLogin() {
 function loginUser() {
   const email = document.getElementById('login-email').value.trim();
   const pwd = document.getElementById('login-password').value.trim();
-  if (!email || !pwd) { showError('Please enter email and password.'); return; }
+  if (!email || !pwd) { 
+    showError('Please enter email and password.'); 
+    return; 
+  }
+  
+  if (!isFirebaseConfigured) {
+    showError('⚠️ Firebase not configured. See deployment guide for setup instructions.');
+    return;
+  }
+  
   auth.signInWithEmailAndPassword(email, pwd)
     .then(() => {
       document.getElementById('login-modal').classList.remove('show');
+      currentUser = auth.currentUser;
+      updateAuthUI();
       showPage('admin');
+      showToast('✓ Logged in successfully!', '#10b981');
     })
-    .catch(e => showError(e.message));
+    .catch(e => {
+      const errorMsg = e.code === 'auth/user-not-found' 
+        ? 'Email not found. Create user in Firebase Console first.'
+        : e.code === 'auth/wrong-password'
+        ? 'Wrong password.'
+        : e.message || 'Login failed.';
+      showError(errorMsg);
+    });
 }
 
 function logout() {
@@ -1232,6 +1268,12 @@ function showError(msg) {
    FIREBASE: ARTICLES
 ════════════════════════════════════════ */
 function loadArticles() {
+  if (!isFirebaseConfigured) {
+    console.log('Demo mode: Using sample articles only');
+    renderHome('all');
+    renderSidebar();
+    return;
+  }
   db.ref('articles').orderByChild('timestamp').limitToLast(100).on('value', snap => {
     articles = [];
     snap.forEach(child => {
@@ -1260,18 +1302,31 @@ function publishArticle() {
     ts: 'Just now'
   };
   
+  if (!isFirebaseConfigured) {
+    showToast('⚠️ Firebase not configured. Article not saved. See deployment guide.', '#fbbf24');
+    return;
+  }
+  
   db.ref('articles').push(newArt).then(() => {
     ['f-title','f-cat','f-read','f-summary','f-author','f-body','f-tags'].forEach(id => {
       document.getElementById(id).value = '';
     });
     showToast('✓ Article published!', '#10b981');
-  }).catch(e => showToast('Error: ' + e.message, '#f87171'));
+    renderAdmin();
+  }).catch(e => showToast('Error: ' + (e.message || 'Failed to publish'), '#f87171'));
 }
 
 function deleteArticle(id) {
   if (!confirm('Delete this article?')) return;
+  if (!isFirebaseConfigured) {
+    showToast('⚠️ Firebase not configured. Cannot delete.', '#fbbf24');
+    return;
+  }
   db.ref('articles/' + id).remove()
-    .then(() => showToast('Article deleted.', '#f87171'))
+    .then(() => {
+      showToast('Article deleted.', '#f87171');
+      renderAdmin();
+    })
     .catch(e => showToast('Error: ' + e.message, '#f87171'));
 }
 
@@ -1279,6 +1334,10 @@ function deleteArticle(id) {
    FIREBASE: SUBSCRIBERS & PITCHES
 ════════════════════════════════════════ */
 function loadSubscribers() {
+  if (!isFirebaseConfigured) {
+    document.getElementById('stat-subs').textContent = '0';
+    return;
+  }
   db.ref('subscribers').on('value', snap => {
     subscribers = [];
     snap.forEach(child => { subscribers.push(child.val()); });
@@ -1289,6 +1348,15 @@ function loadSubscribers() {
 function subscribeNewsletter() {
   const email = document.getElementById('nl-email').value.trim();
   if (!email) return;
+  
+  if (!isFirebaseConfigured) {
+    showToast('✓ Demo mode: Email noted (Firebase not configured)', '#22d3ee');
+    document.getElementById('nl-ok').style.display='block';
+    document.getElementById('nl-email').value='';
+    setTimeout(()=>document.getElementById('nl-ok').style.display='none',4000);
+    return;
+  }
+  
   db.ref('subscribers').push({ email, subscribedAt: Date.now() })
     .then(() => {
       document.getElementById('nl-ok').style.display='block';
@@ -1300,6 +1368,15 @@ function subscribeNewsletter() {
 function subscribeNewsletter2() {
   const email = document.getElementById('nl-email2').value.trim();
   if (!email) return;
+  
+  if (!isFirebaseConfigured) {
+    showToast('✓ Demo mode: Email noted (Firebase not configured)', '#22d3ee');
+    document.getElementById('nl-ok2').style.display='block';
+    document.getElementById('nl-email2').value='';
+    setTimeout(()=>document.getElementById('nl-ok2').style.display='none',4000);
+    return;
+  }
+  
   db.ref('subscribers').push({ email, subscribedAt: Date.now() })
     .then(() => {
       document.getElementById('nl-ok2').style.display='block';
@@ -1318,12 +1395,28 @@ function submitPitch() {
   const cat = document.getElementById('pitch-cat').value;
   const body = document.getElementById('pitch-body').value.trim();
   
-  if (!name || !email || !title || !body) { showToast('⚠ Please fill in all required fields.', '#fbbf24'); return; }
+  if (!name || !email || !title || !body) { 
+    showToast('⚠ Please fill in all required fields.', '#fbbf24'); 
+    return; 
+  }
   
   const pitch = {
     name, email, phone, role, title, cat, body,
     submittedAt: Date.now()
   };
+  
+  if (!isFirebaseConfigured) {
+    showToast('⚠️ Firebase not configured. Your pitch can\'t be saved. See deployment guide.', '#fbbf24');
+    // Still clear form to show something happened
+    document.getElementById('pitch-name').value='';
+    document.getElementById('pitch-email').value='';
+    document.getElementById('pitch-phone').value='';
+    document.getElementById('pitch-role').value='';
+    document.getElementById('pitch-title').value='';
+    document.getElementById('pitch-cat').value='';
+    document.getElementById('pitch-body').value='';
+    return;
+  }
   
   db.ref('pitches').push(pitch).then(() => {
     document.getElementById('pitch-name').value='';
@@ -1335,7 +1428,9 @@ function submitPitch() {
     document.getElementById('pitch-body').value='';
     showToast('✓ Pitch submitted! We\'ll review it within 48 hours.', '#10b981');
     setTimeout(() => showPage('home'), 2000);
-  }).catch(e => showToast('Error: ' + e.message, '#f87171'));
+  }).catch(e => {
+    showToast('Error: ' + (e.message || 'Pitch submission failed'), '#f87171');
+  });
 }
 
 /* ════════════════════════════════════════
