@@ -1,1 +1,1940 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberSageSaga — Tech · Cyber · Gadgets Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+
+<style>
+:root {
+  --bg:       #06101e;
+  --bg2:      #0a1828;
+  --bg3:      #0e2035;
+  --bg4:      #122540;
+  --bg5:      #172d4e;
+  --border:   rgba(255,255,255,.07);
+  --border2:  rgba(255,255,255,.13);
+  --border3:  rgba(255,255,255,.20);
+  --cyan:     #22d3ee;
+  --pink:     #f472b6;
+  --gold:     #fbbf24;
+  --emerald:  #10b981;
+  --violet:   #a78bfa;
+  --red:      #f87171;
+  --text:     #e2ecff;
+  --text2:    #7a9ac0;
+  --text3:    #3e5878;
+  --fh: 'Bebas Neue', 'Impact', sans-serif;
+  --fb: 'Rajdhani', 'Trebuchet MS', sans-serif;
+  --fm: 'Fira Code', 'Courier New', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--fb);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+img { display: block; max-width: 100%; }
+button, input { font-family: var(--fb); }
+a { color: inherit; text-decoration: none; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--bg5); border-radius: 3px; }
+
+.page { display: none; }
+.page.active { display: block; }
+
+/* ════════════════════════════════════════ TICKER ════════════════════════════════════════ */
+.ticker-bar {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+  padding: 7px 0;
+  position: relative;
+}
+.ticker-bar::before,
+.ticker-bar::after {
+  content: '';
+  position: absolute; top: 0; bottom: 0;
+  width: 60px; z-index: 2;
+}
+.ticker-bar::before { left:0; background:linear-gradient(90deg,var(--bg2),transparent); }
+.ticker-bar::after  { right:0;background:linear-gradient(-90deg,var(--bg2),transparent); }
+.ticker-track {
+  display: flex; gap: 32px;
+  animation: tickMove 40s linear infinite;
+  white-space: nowrap; width: max-content;
+}
+@keyframes tickMove { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+.tk {
+  font-family: var(--fm);
+  font-size: 11px;
+  display: flex; gap: 7px; align-items: center;
+}
+.tkl { color: var(--text3); }
+.tkv { font-weight: 500; }
+.up  { color: var(--emerald); }
+.dn  { color: var(--pink); }
+.wr  { color: var(--gold); }
+.tksep { color: var(--border2); }
+
+/* ════════════════════════════════════════ HEADER ════════════════════════════════════════ */
+.site-header {
+  background: linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%);
+  border-bottom: 1px solid var(--border2);
+  position: sticky; top: 0; z-index: 300;
+  box-shadow: 0 4px 40px rgba(0,0,0,.5);
+}
+.header-inner {
+  max-width: 100%;
+  padding: 0 32px;
+}
+.header-top {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 14px 0 10px;
+}
+.brand {
+  display: flex; align-items: center; gap: 14px;
+  cursor: pointer; user-select: none;
+}
+.brand-hex {
+  width: 46px; height: 46px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--bg3), var(--bg5));
+  border: 1px solid rgba(34,211,238,.3);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 20px rgba(34,211,238,.12);
+}
+.brand-hex svg { width: 28px; height: 28px; }
+.brand-text { display: flex; flex-direction: column; gap: 2px; }
+.brand-name {
+  font-family: var(--fh);
+  font-size: 28px;
+  letter-spacing: 3px;
+  line-height: 1;
+  position: relative;
+}
+.bc { color: var(--cyan); }
+.bs { color: var(--text); }
+.bg { color: var(--pink); }
+.brand-name.glitching { animation: glitch .4s steps(1) forwards; }
+@keyframes glitch {
+  0%  { transform:translate(0); filter:none; }
+  10% { transform:translate(-3px,0); filter:hue-rotate(90deg) brightness(1.5); }
+  20% { transform:translate(3px,0); filter:hue-rotate(-90deg); }
+  30% { transform:translate(-2px,1px); filter:brightness(2); }
+  40% { transform:translate(4px,-1px); filter:hue-rotate(180deg); }
+  50% { transform:translate(0); filter:none; }
+  60% { transform:translate(-3px,0); filter:brightness(1.6); }
+  70% { transform:translate(2px,0); filter:none; }
+  80% { transform:translate(0); filter:none; }
+  100%{ transform:translate(0); filter:none; }
+}
+.brand-url {
+  font-family: var(--fm);
+  font-size: 10px; color: var(--text3); letter-spacing: 1px;
+}
+.brand-url span { color: var(--emerald); }
+.header-right { display: flex; align-items: center; gap: 14px; }
+.live-pill {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--fm); font-size: 10px; font-weight: 500;
+  letter-spacing: 1.5px; color: var(--red);
+  background: rgba(248,113,113,.1);
+  border: 1px solid rgba(248,113,113,.25);
+  border-radius: 4px; padding: 5px 11px;
+}
+.live-dot {
+  width: 6px; height: 6px; background: var(--red);
+  border-radius: 50%; animation: ldot 1.2s ease infinite;
+}
+@keyframes ldot { 0%,100%{opacity:1} 50%{opacity:.2} }
+.date-str {
+  font-family: var(--fm); font-size: 10px; color: var(--text3); letter-spacing: .5px;
+}
+.header-btns { display: flex; align-items: center; gap: 8px; }
+.admin-btn, .pitch-btn {
+  font-family: var(--fm); font-size: 10px; font-weight: 500; letter-spacing: 1px;
+  color: var(--violet); background: rgba(167,139,250,.1);
+  border: 1px solid rgba(167,139,250,.3); border-radius: 4px;
+  padding: 5px 12px; cursor: pointer; transition: .2s;
+}
+.pitch-btn { color: var(--cyan); background: rgba(34,211,238,.1); border-color: rgba(34,211,238,.3); }
+.admin-btn:hover { background: rgba(167,139,250,.2); border-color: rgba(167,139,250,.5); }
+.pitch-btn:hover { background: rgba(34,211,238,.2); border-color: rgba(34,211,238,.5); }
+.user-info {
+  font-family: var(--fm); font-size: 10px; color: var(--cyan);
+  display: flex; align-items: center; gap: 8px;
+}
+.logout-btn {
+  font-family: var(--fm); font-size: 9px; font-weight: 500; letter-spacing: 1px;
+  color: var(--red); background: transparent; border: 1px solid rgba(248,113,113,.3);
+  border-radius: 3px; padding: 3px 8px; cursor: pointer; transition: .2s;
+}
+.logout-btn:hover { border-color: rgba(248,113,113,.6); }
+
+.nav-tabs {
+  display: flex; border-top: 1px solid var(--border);
+  overflow-x: auto; scrollbar-width: none;
+}
+.nav-tabs::-webkit-scrollbar { display: none; }
+.nav-tab {
+  font-family: var(--fb); font-size: 12px; font-weight: 600;
+  letter-spacing: .8px; color: var(--text3);
+  padding: 10px 20px; cursor: pointer;
+  border-bottom: 2px solid transparent; transition: .2s;
+  white-space: nowrap; text-transform: uppercase;
+}
+.nav-tab:hover { color: var(--text2); background: rgba(255,255,255,.03); }
+.nav-tab.on { color: var(--cyan); border-bottom-color: var(--cyan); }
+
+/* ════════════════════════════════════════ LOGIN MODAL ════════════════════════════════════════ */
+.modal {
+  position: fixed; inset: 0; background: rgba(0,0,0,.8);
+  display: none; align-items: center; justify-content: center;
+  z-index: 9999;
+}
+.modal.show { display: flex; }
+.modal-content {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 14px; padding: 32px 40px;
+  max-width: 420px; width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,.8);
+  position: relative;
+}
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  color: var(--text2);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: all 0.2s;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-close:hover {
+  color: var(--text);
+  background: rgba(255,255,255,.1);
+  border-radius: 4px;
+}
+.modal-title {
+  font-family: var(--fh); font-size: 32px; letter-spacing: 2px;
+  color: var(--text); margin-bottom: 24px;
+}
+.modal-title span { color: var(--violet); }
+.form-group { margin-bottom: 18px; }
+.form-label {
+  font-family: var(--fm); font-size: 9px; font-weight: 500;
+  letter-spacing: 1.5px; color: var(--text3); text-transform: uppercase;
+  display: block; margin-bottom: 7px;
+}
+.form-input {
+  width: 100%; background: var(--bg);
+  border: 1px solid var(--border2); border-radius: 8px;
+  padding: 11px 14px; color: var(--text); font-family: var(--fb); font-size: 14px;
+  outline: none; transition: .2s;
+}
+.form-input::placeholder { color: var(--text3); }
+.form-input:focus { border-color: rgba(167,139,250,.4); }
+.login-btn {
+  width: 100%;
+  background: linear-gradient(90deg, #2a1450, #3a1c6e);
+  border: 1px solid rgba(167,139,250,.4); border-radius: 8px;
+  padding: 13px; color: var(--violet);
+  font-family: var(--fh); font-size: 18px; letter-spacing: 3px;
+  cursor: pointer; transition: .25s; margin-top: 6px;
+}
+.login-btn:hover { border-color: rgba(167,139,250,.7); background: linear-gradient(90deg,#341860,#462288); }
+.login-btn:active { transform: scale(.99); }
+.login-error {
+  color: var(--red); font-family: var(--fm); font-size: 11px;
+  margin-top: 12px; text-align: center; display: none;
+}
+
+/* ════════════════════════════════════════ LAYOUT ════════════════════════════════════════ */
+.site-wrap { max-width: 100%; padding: 0 32px; }
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 24px;
+  align-items: start;
+}
+
+/* ════════════════════════════════════════ BADGES ════════════════════════════════════════ */
+.badge {
+  display: inline-block;
+  font-family: var(--fm); font-size: 9px; font-weight: 500;
+  letter-spacing: 1.2px; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 3px; margin-bottom: 10px;
+}
+.b-red    { background:rgba(248,113,113,.15); color:#fca5a5; border:1px solid rgba(248,113,113,.35); }
+.b-cyan   { background:rgba(34,211,238,.12);  color:#67e8f9; border:1px solid rgba(34,211,238,.3); }
+.b-purple { background:rgba(167,139,250,.12); color:#c4b5fd; border:1px solid rgba(167,139,250,.3); }
+.b-green  { background:rgba(16,185,129,.12);  color:#6ee7b7; border:1px solid rgba(16,185,129,.3); }
+.b-gold   { background:rgba(251,191,36,.12);  color:#fde68a; border:1px solid rgba(251,191,36,.3); }
+.b-pink   { background:rgba(244,114,182,.12); color:#fbcfe8; border:1px solid rgba(244,114,182,.3); }
+
+/* ════════════════════════════════════════ AI BRIEFING ════════════════════════════════════════ */
+.ai-brief {
+  background: linear-gradient(100deg, #0c1e3a, #102440);
+  border: 1px solid rgba(34,211,238,.18);
+  border-radius: 14px; padding: 18px 22px;
+  display: flex; gap: 16px; align-items: flex-start;
+  margin: 24px 0; position: relative; overflow: hidden;
+}
+.ai-brief::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), var(--pink), transparent);
+}
+.ai-icon {
+  width: 46px; height: 46px; border-radius: 10px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--bg3), var(--bg5));
+  border: 1px solid rgba(34,211,238,.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+.ai-label {
+  font-family: var(--fm); font-size: 9px; font-weight: 500;
+  letter-spacing: 2px; color: var(--cyan); margin-bottom: 6px;
+}
+.ai-body { font-size: 14px; color: var(--text2); line-height: 1.7; flex: 1; }
+.ai-body strong { color: var(--text); }
+.ai-refresh {
+  font-family: var(--fm); font-size: 10px; font-weight: 500; letter-spacing: .8px;
+  color: var(--cyan); background: transparent;
+  border: 1px solid rgba(34,211,238,.25); border-radius: 6px;
+  padding: 8px 14px; cursor: pointer; transition: .2s;
+  white-space: nowrap; flex-shrink: 0;
+}
+.ai-refresh:hover { background: rgba(34,211,238,.08); border-color: rgba(34,211,238,.5); }
+.ai-refresh:disabled { opacity: .35; cursor: default; }
+.loading-dots { display: flex; gap: 5px; align-items: center; }
+.ld {
+  width: 6px; height: 6px; border-radius: 50%;
+  animation: ldbl 1.4s infinite both;
+}
+.ld1{background:var(--cyan);animation-delay:0s}
+.ld2{background:var(--pink);animation-delay:.2s}
+.ld3{background:var(--cyan);animation-delay:.4s}
+@keyframes ldbl {
+  0%,80%,100%{opacity:.15;transform:scale(.7)}
+  40%{opacity:1;transform:scale(1)}
+}
+
+/* ════════════════════════════════════════ SECTIONS ════════════════════════════════════════ */
+.sec-label {
+  font-family: var(--fm); font-size: 10px; font-weight: 500;
+  letter-spacing: 2.5px; color: var(--cyan); text-transform: uppercase;
+  margin-bottom: 14px; padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+.sec-label::before {
+  content: '';
+  width: 3px; height: 16px; border-radius: 2px;
+  background: linear-gradient(180deg, var(--cyan), var(--pink));
+  display: inline-block;
+}
+
+/* ════════════════════════════════════════ HERO ════════════════════════════════════════ */
+.hero-main {
+  border-radius: 16px; overflow: hidden; cursor: pointer;
+  position: relative; aspect-ratio: 16/8;
+  border: 1px solid var(--border2); margin-bottom: 14px;
+  display: flex; align-items: flex-end;
+  transition: .3s;
+}
+.hero-main:hover { border-color: var(--border3); transform: translateY(-2px); }
+.hero-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
+}
+.hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg,transparent 25%,rgba(6,16,30,.7) 60%,rgba(6,16,30,.97) 100%);
+}
+.hero-body {
+  position: relative; z-index: 2;
+  padding: 28px 32px;
+}
+.hero-body h1 {
+  font-family: var(--fh);
+  font-size: 36px; letter-spacing: 2px; line-height: 1.15;
+  color: #fff; margin-bottom: 10px;
+  text-shadow: 0 2px 16px rgba(0,0,0,.8);
+}
+.hero-body p { font-size: 15px; color: rgba(255,255,255,.7); line-height: 1.65; max-width: 680px; }
+.hero-meta {
+  font-family: var(--fm); font-size: 10px; color: rgba(255,255,255,.45);
+  margin-top: 12px; display: flex; gap: 10px; align-items: center;
+}
+
+.sub-hero-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+  margin-bottom: 24px;
+}
+.sub-card {
+  border-radius: 12px; overflow: hidden; cursor: pointer;
+  border: 1px solid var(--border); background: var(--bg2);
+  display: flex; flex-direction: column; transition: .25s;
+}
+.sub-card:hover { border-color: var(--border2); transform: translateY(-3px); box-shadow: 0 8px 32px rgba(0,0,0,.4); }
+.sub-img { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+.sub-body { padding: 14px; flex: 1; }
+.sub-body h3 {
+  font-family: var(--fh); font-size: 17px; letter-spacing: 1px; line-height: 1.3;
+  color: var(--text); margin-bottom: 6px;
+}
+.sub-body p { font-size: 13px; color: var(--text2); line-height: 1.55; }
+.sub-meta {
+  font-family: var(--fm); font-size: 9px; color: var(--text3);
+  margin-top: 10px; display: flex; gap: 6px; align-items: center;
+}
+
+/* ════════════════════════════════════════ NEWS LIST ════════════════════════════════════════ */
+.news-item {
+  display: flex; gap: 14px; padding: 15px 0;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  cursor: pointer; transition: .2s; align-items: flex-start;
+}
+.news-item:hover .ni-title { color: var(--cyan); }
+.news-item:hover .ni-thumb { transform: scale(1.04); }
+.ni-thumb {
+  width: 90px; height: 65px; border-radius: 8px;
+  object-fit: cover; flex-shrink: 0; transition: .35s;
+  border: 1px solid var(--border);
+}
+.ni-body { flex: 1; min-width: 0; }
+.ni-title {
+  font-family: var(--fh); font-size: 17px; letter-spacing: .8px;
+  line-height: 1.3; color: var(--text); margin-bottom: 5px; transition: .2s;
+}
+.ni-preview { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.ni-meta {
+  font-family: var(--fm); font-size: 9px; color: var(--text3);
+  margin-top: 7px; display: flex; gap: 7px; align-items: center;
+}
+.ni-dot { width: 2px; height: 2px; background: var(--text3); border-radius: 50%; }
+
+/* ════════════════════════════════════════ SIDEBAR ════════════════════════════════════════ */
+.sidebar { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 120px; }
+.sbox {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px; position: relative; overflow: hidden;
+}
+.sbox::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+.sbox-threats::before  { background:linear-gradient(90deg,var(--pink),transparent); }
+.sbox-prices::before   { background:linear-gradient(90deg,var(--gold),transparent); }
+.sbox-trending::before { background:linear-gradient(90deg,var(--cyan),transparent); }
+.sbox-nl::before       { background:linear-gradient(90deg,var(--violet),transparent); }
+.sbox-ask::before      { background:linear-gradient(90deg,var(--emerald),transparent); }
+
+.sbox-label {
+  font-family: var(--fm); font-size: 9px; font-weight: 500;
+  letter-spacing: 2px; text-transform: uppercase;
+  padding-bottom: 10px; margin-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.sl-p { color: var(--pink); }
+.sl-g { color: var(--gold); }
+.sl-c { color: var(--cyan); }
+.sl-v { color: var(--violet); }
+.sl-e { color: var(--emerald); }
+
+.thr-row {
+  display: flex; gap: 10px; padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,.05); align-items: flex-start;
+}
+.thr-row:last-child { border-bottom: none; }
+.sev { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.sc  { background: var(--red);     box-shadow: 0 0 6px var(--red); }
+.sh  { background: var(--gold);    box-shadow: 0 0 5px var(--gold); }
+.sm  { background: var(--emerald); }
+.thr-name { font-family: var(--fm); font-size: 10px; font-weight: 500; color: var(--cyan); margin-bottom: 1px; }
+.thr-desc { font-family: var(--fm); font-size: 10px; color: var(--text3); }
+
+.prc-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.prc-row:last-child { border-bottom: none; }
+.prc-name { font-family: var(--fm); font-size: 11px; color: var(--text2); }
+.prc-val  { font-family: var(--fm); font-size: 11px; font-weight: 500; }
+
+.trnd-row {
+  display: flex; gap: 10px; padding: 7px 0;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  cursor: pointer; align-items: center; transition: .15s;
+}
+.trnd-row:last-child { border-bottom: none; }
+.trnd-row:hover .trnd-text { color: var(--cyan); }
+.trnd-num  { font-family: var(--fm); font-size: 10px; color: var(--text3); min-width: 18px; }
+.trnd-text { font-size: 13px; color: var(--text2); line-height: 1.4; transition: .15s; }
+
+.nl-desc { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 12px; }
+.nl-in {
+  width: 100%; background: var(--bg);
+  border: 1px solid var(--border2); border-radius: 7px;
+  padding: 10px 13px; color: var(--text); font-family: var(--fb); font-size: 13px;
+  outline: none; margin-bottom: 9px; transition: .2s;
+}
+.nl-in::placeholder { color: var(--text3); }
+.nl-in:focus { border-color: rgba(34,211,238,.35); }
+.nl-btn {
+  width: 100%;
+  background: linear-gradient(90deg, #0f2a4a, #1a3a64);
+  border: 1px solid rgba(34,211,238,.3); border-radius: 7px;
+  padding: 10px; color: var(--cyan);
+  font-family: var(--fm); font-size: 10px; font-weight: 500; letter-spacing: 1.5px;
+  cursor: pointer; transition: .2s;
+}
+.nl-btn:hover { border-color: rgba(34,211,238,.6); background: linear-gradient(90deg,#132f52,#1e406e); }
+.nl-ok { font-family: var(--fm); font-size: 10px; color: var(--emerald); margin-top: 8px; display: none; text-align: center; }
+
+.ask-in-sb {
+  width: 100%; background: var(--bg);
+  border: 1px solid var(--border2); border-radius: 7px;
+  padding: 10px 13px; color: var(--text); font-family: var(--fb); font-size: 13px;
+  outline: none; margin-bottom: 9px; transition: .2s; resize: none; height: 72px;
+}
+.ask-in-sb::placeholder { color: var(--text3); }
+.ask-in-sb:focus { border-color: rgba(167,139,250,.35); }
+.ask-sb-btn {
+  width: 100%;
+  background: linear-gradient(90deg, #2a1450, #3a1c6e);
+  border: 1px solid rgba(167,139,250,.3); border-radius: 7px;
+  padding: 10px; color: var(--violet);
+  font-family: var(--fm); font-size: 10px; font-weight: 500; letter-spacing: 1.5px;
+  cursor: pointer; transition: .2s;
+}
+.ask-sb-btn:hover { border-color: rgba(167,139,250,.6); }
+
+/* ════════════════════════════════════════ ARTICLE DETAIL ════════════════════════════════════════ */
+.article-wrap { max-width: 100%; padding: 0 32px; }
+.article-grid {
+  display: grid; grid-template-columns: 1fr 300px;
+  gap: 32px; align-items: start;
+}
+.back-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--fm); font-size: 10px; font-weight: 500; letter-spacing: 1px;
+  color: var(--text2); cursor: pointer;
+  margin: 24px 0 20px; transition: .2s; background: none; border: none;
+  text-transform: uppercase;
+}
+.back-btn:hover { color: var(--cyan); }
+.back-btn::before { content: '←'; font-size: 14px; }
+
+.article-hero-img {
+  width: 100%; aspect-ratio: 21/9;
+  object-fit: cover; border-radius: 14px;
+  border: 1px solid var(--border2); margin-bottom: 28px;
+}
+.article-header { margin-bottom: 24px; }
+.article-header h1 {
+  font-family: var(--fh); font-size: 52px; letter-spacing: 3px; line-height: 1.1;
+  color: var(--text); margin-bottom: 16px;
+}
+.article-byline {
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  font-family: var(--fm); font-size: 11px; color: var(--text3);
+  padding-bottom: 18px; border-bottom: 1px solid var(--border);
+}
+.byline-author { color: var(--cyan); font-weight: 500; }
+.article-body { font-size: 16px; color: var(--text2); line-height: 1.85; }
+.article-body h2 {
+  font-family: var(--fh); font-size: 28px; letter-spacing: 1.5px;
+  color: var(--text); margin: 32px 0 14px;
+}
+.article-body p { margin-bottom: 18px; }
+.article-body strong { color: var(--text); font-weight: 600; }
+.article-body .highlight {
+  background: linear-gradient(100deg, rgba(34,211,238,.08), rgba(244,114,182,.05));
+  border-left: 3px solid var(--cyan); border-radius: 0 8px 8px 0;
+  padding: 16px 20px; margin: 24px 0; font-size: 15px; color: var(--text);
+}
+.article-body code {
+  font-family: var(--fm); font-size: 13px; color: var(--cyan);
+  background: rgba(34,211,238,.08); border: 1px solid rgba(34,211,238,.2);
+  border-radius: 4px; padding: 2px 7px;
+}
+.article-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border); }
+.article-tag {
+  font-family: var(--fm); font-size: 9px; font-weight: 500; letter-spacing: 1px;
+  color: var(--text2); background: var(--bg3);
+  border: 1px solid var(--border2); border-radius: 4px;
+  padding: 5px 11px; cursor: pointer; transition: .2s;
+}
+.article-tag:hover { color: var(--cyan); border-color: rgba(34,211,238,.3); }
+
+.related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.related-card {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 10px;
+  overflow: hidden; cursor: pointer; transition: .2s;
+}
+.related-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+.related-card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+.related-card-body { padding: 12px; }
+.related-card-body h4 {
+  font-family: var(--fh); font-size: 15px; letter-spacing: .8px;
+  line-height: 1.3; color: var(--text); margin-bottom: 4px;
+}
+.related-card-body p { font-size: 11px; color: var(--text2); }
+
+/* ════════════════════════════════════════ ADMIN PANEL ════════════════════════════════════════ */
+.admin-wrap { max-width: 100%; padding: 0 32px 40px; }
+.admin-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 28px 0 22px; border-bottom: 1px solid var(--border2);
+  margin-bottom: 28px;
+}
+.admin-title { font-family: var(--fh); font-size: 40px; letter-spacing: 3px; color: var(--text); }
+.admin-title span { color: var(--violet); }
+.admin-grid { display: grid; grid-template-columns: 1fr 340px; gap: 28px; align-items: start; }
+
+.stat-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 28px; }
+.stat-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 18px; position: relative; overflow: hidden;
+}
+.stat-card::before { content:''; position:absolute; top:0;left:0;right:0; height:2px; }
+.sc1::before{background:var(--cyan)}.sc2::before{background:var(--pink)}.sc3::before{background:var(--gold)}.sc4::before{background:var(--emerald)}
+.stat-val { font-family: var(--fh); font-size: 36px; letter-spacing: 2px; color: var(--text); margin-bottom: 4px; }
+.stat-lbl { font-family: var(--fm); font-size: 9px; font-weight: 500; letter-spacing: 1.5px; color: var(--text3); text-transform: uppercase; }
+
+.form-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 24px;
+}
+.form-title {
+  font-family: var(--fh); font-size: 22px; letter-spacing: 2px;
+  color: var(--text); margin-bottom: 20px; padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.form-textarea {
+  width: 100%; background: var(--bg);
+  border: 1px solid var(--border2); border-radius: 8px;
+  padding: 11px 14px; color: var(--text); font-family: var(--fb); font-size: 14px;
+  outline: none; transition: .2s; resize: vertical; min-height: 180px; line-height: 1.6;
+}
+.form-textarea::placeholder { color: var(--text3); }
+.form-textarea:focus { border-color: rgba(167,139,250,.4); }
+.form-select {
+  width: 100%; background: var(--bg);
+  border: 1px solid var(--border2); border-radius: 8px;
+  padding: 11px 14px; color: var(--text2); font-family: var(--fb); font-size: 14px;
+  outline: none; transition: .2s;
+}
+.form-select:focus { border-color: rgba(167,139,250,.4); }
+.form-select option { background: var(--bg2); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.submit-btn {
+  width: 100%;
+  background: linear-gradient(90deg, #2a1450, #3a1c6e);
+  border: 1px solid rgba(167,139,250,.4); border-radius: 8px;
+  padding: 13px; color: var(--violet);
+  font-family: var(--fh); font-size: 18px; letter-spacing: 3px;
+  cursor: pointer; transition: .25s; margin-top: 6px;
+}
+.submit-btn:hover { border-color: rgba(167,139,250,.7); background: linear-gradient(90deg,#341860,#462288); }
+.submit-btn:active { transform: scale(.99); }
+
+.articles-panel {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 14px; overflow: hidden;
+}
+.articles-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 20px; border-bottom: 1px solid var(--border);
+}
+.panel-title { font-family: var(--fh); font-size: 20px; letter-spacing: 2px; color: var(--text); }
+.article-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,.04);
+  transition: .15s;
+}
+.article-row:last-child { border-bottom: none; }
+.article-row:hover { background: rgba(255,255,255,.02); }
+.ar-thumb { width: 56px; height: 42px; border-radius: 6px; object-fit: cover; flex-shrink: 0; border: 1px solid var(--border); }
+.ar-info { flex: 1; min-width: 0; }
+.ar-title {
+  font-family: var(--fb); font-size: 13px; font-weight: 600;
+  color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px;
+}
+.ar-meta { font-family: var(--fm); font-size: 9px; color: var(--text3); }
+.ar-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.ar-btn {
+  font-family: var(--fm); font-size: 9px; letter-spacing: .8px; font-weight: 500;
+  padding: 4px 10px; border-radius: 4px; cursor: pointer; transition: .15s; border: 1px solid;
+}
+.ar-edit  { color: var(--cyan);  border-color: rgba(34,211,238,.3); background: rgba(34,211,238,.08); }
+.ar-edit:hover  { background: rgba(34,211,238,.18); }
+.ar-del   { color: var(--red);   border-color: rgba(248,113,113,.3); background: rgba(248,113,113,.08); }
+.ar-del:hover   { background: rgba(248,113,113,.18); }
+.ar-view  { color: var(--violet);border-color: rgba(167,139,250,.3); background: rgba(167,139,250,.08); }
+.ar-view:hover  { background: rgba(167,139,250,.18); }
+
+/* ════════════════════════════════════════ PITCH FORM ════════════════════════════════════════ */
+.pitch-wrap { max-width: 100%; padding: 0 32px 40px; }
+.pitch-header {
+  padding: 28px 0 22px; margin-bottom: 28px;
+}
+.pitch-title { font-family: var(--fh); font-size: 48px; letter-spacing: 3px; color: var(--text); margin-bottom: 10px; }
+.pitch-subtitle { font-family: var(--fm); font-size: 12px; letter-spacing: 1px; color: var(--text3); text-transform: uppercase; }
+.pitch-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 32px; align-items: start; }
+.pitch-form-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 32px;
+}
+.pitch-form-title {
+  font-family: var(--fh); font-size: 26px; letter-spacing: 2px;
+  color: var(--text); margin-bottom: 24px;
+}
+.pitch-sidebar-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 24px;
+}
+.pitch-sidebar-title {
+  font-family: var(--fh); font-size: 20px; letter-spacing: 1.5px;
+  color: var(--text); margin-bottom: 16px;
+}
+.pitch-guidelines {
+  font-size: 13px; color: var(--text2); line-height: 1.8;
+}
+.pitch-guidelines h4 {
+  font-family: var(--fh); font-size: 16px; letter-spacing: 1px;
+  color: var(--text); margin: 16px 0 8px;
+}
+.pitch-guidelines ul {
+  list-style: none; padding: 0;
+}
+.pitch-guidelines li {
+  padding: 6px 0 6px 20px;
+  position: relative;
+}
+.pitch-guidelines li::before {
+  content: '▸';
+  position: absolute; left: 0;
+  color: var(--cyan);
+}
+
+/* ════════════════════════════════════════ TOAST ════════════════════════════════════════ */
+.toast {
+  position: fixed; bottom: 28px; right: 28px;
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 14px 20px;
+  font-family: var(--fm); font-size: 11px; color: var(--emerald); letter-spacing: .5px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);
+  transform: translateY(80px); opacity: 0;
+  transition: .35s cubic-bezier(.34,1.56,.64,1); z-index: 9999;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* ════════════════════════════════════════ FOOTER ════════════════════════════════════════ */
+.footer {
+  border-top: 1px solid var(--border); margin-top: 40px;
+  padding: 24px 32px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.f-brand { font-family: var(--fh); font-size: 22px; letter-spacing: 2px; }
+.f-info { font-family: var(--fm); font-size: 9px; color: var(--text3); text-align: right; line-height: 1.9; letter-spacing: .5px; }
+.f-info span { color: var(--emerald); }
+
+/* ════════════════════════════════════════ UTILITIES ════════════════════════════════════════ */
+.mt16 { margin-top: 16px; }
+.mt24 { margin-top: 24px; }
+.mt32 { margin-top: 32px; }
+.divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+
+/* ════════════════════════════════════════ RESPONSIVE DESIGN ════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .content-grid, .article-grid, .admin-grid, .pitch-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .sidebar {
+    position: static;
+    top: auto;
+  }
+  .header-inner {
+    padding: 0 16px;
+  }
+  .site-wrap {
+    padding: 0 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    font-size: 16px;
+  }
+  
+  .brand-name {
+    font-size: 20px;
+    letter-spacing: 2px;
+  }
+  
+  .brand-url {
+    font-size: 8px;
+  }
+  
+  .nav-tabs {
+    overflow-x: auto;
+  }
+  
+  .nav-tab {
+    font-size: 10px;
+    padding: 8px 12px;
+  }
+  
+  .header-right {
+    gap: 8px;
+  }
+  
+  .admin-btn, .pitch-btn, .logout-btn {
+    font-size: 8px;
+    padding: 4px 8px;
+  }
+  
+  .hero-body h1 {
+    font-size: 24px;
+    letter-spacing: 1px;
+  }
+  
+  .hero-body p {
+    font-size: 13px;
+  }
+  
+  .sub-hero-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .sub-body h3 {
+    font-size: 14px;
+  }
+  
+  .ni-title {
+    font-size: 14px;
+  }
+  
+  .ni-thumb {
+    width: 70px;
+    height: 50px;
+  }
+  
+  .modal-content {
+    padding: 24px 20px;
+    max-width: 90%;
+  }
+  
+  .article-header h1 {
+    font-size: 32px;
+  }
+  
+  .article-body h2 {
+    font-size: 22px;
+  }
+  
+  .admin-title {
+    font-size: 28px;
+  }
+  
+  .stat-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .pitch-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .admin-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 15px;
+  }
+  
+  .header-inner {
+    padding: 0 12px;
+  }
+  
+  .site-wrap {
+    padding: 0 12px;
+  }
+  
+  .brand {
+    gap: 8px;
+  }
+  
+  .brand-hex {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .brand-hex svg {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .brand-name {
+    font-size: 16px;
+    letter-spacing: 1px;
+  }
+  
+  .nav-tab {
+    font-size: 9px;
+    padding: 6px 10px;
+  }
+  
+  .hero-main {
+    aspect-ratio: 16/10;
+  }
+  
+  .hero-body {
+    padding: 16px 20px;
+  }
+  
+  .hero-body h1 {
+    font-size: 18px;
+  }
+  
+  .hero-body p {
+    font-size: 12px;
+  }
+  
+  .sub-card {
+    min-height: auto;
+  }
+  
+  .sub-body h3 {
+    font-size: 12px;
+  }
+  
+  .ni-title {
+    font-size: 12px;
+  }
+  
+  .ni-preview {
+    font-size: 11px;
+  }
+  
+  .ni-meta {
+    font-size: 8px;
+  }
+  
+  .sbox {
+    padding: 12px;
+  }
+  
+  .sbox-label {
+    font-size: 8px;
+  }
+  
+  .form-card, .pitch-form-card {
+    padding: 18px;
+  }
+  
+  .modal-content {
+    padding: 20px;
+  }
+  
+  .modal-title {
+    font-size: 22px;
+  }
+  
+  .stat-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  
+  .stat-val {
+    font-size: 24px;
+  }
+  
+  .article-header h1 {
+    font-size: 24px;
+  }
+  
+  .related-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .footer {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-track" id="ticker"></div>
+</div>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-top">
+      <div class="brand" onclick="triggerGlitch();showPage('home')">
+        <div class="brand-hex">
+          <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="14,2 26,8 26,20 14,26 2,20 2,8" stroke="#22d3ee" stroke-width="1.5" fill="none"/>
+            <polygon points="14,6 21,10 21,18 14,22 7,18 7,10" fill="rgba(34,211,238,0.1)" stroke="#f472b6" stroke-width="1"/>
+            <circle cx="14" cy="14" r="3.5" fill="#22d3ee"/>
+            <line x1="14" y1="2"  x2="14" y2="6"  stroke="#22d3ee" stroke-width="1"/>
+            <line x1="14" y1="22" x2="14" y2="26" stroke="#22d3ee" stroke-width="1"/>
+            <line x1="2"  y1="8"  x2="7"  y2="10" stroke="#22d3ee" stroke-width="1"/>
+            <line x1="26" y1="8"  x2="21" y2="10" stroke="#22d3ee" stroke-width="1"/>
+            <line x1="2"  y1="20" x2="7"  y2="18" stroke="#22d3ee" stroke-width="1"/>
+            <line x1="26" y1="20" x2="21" y2="18" stroke="#22d3ee" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-name" id="brand-name">
+            <span class="bc">Cyber</span><span class="bs">Sage</span><span class="bg">Saga</span>
+          </div>
+          <div class="brand-url">▸ <span>cybersagesaga.com</span> · Tech · Cyber · Gadgets</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <span class="date-str" id="date-str"></span>
+        <div class="header-btns">
+          <button class="pitch-btn" onclick="showPage('pitch')">✎ Pitch</button>
+          <button class="admin-btn" id="admin-btn-main" onclick="showAdminOrLogin()">⚙ Admin</button>
+          <div id="auth-info" style="display:none">
+            <div class="user-info">
+              <span id="user-email"></span>
+              <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+          </div>
+        </div>
+        <div class="live-pill"><div class="live-dot"></div>LIVE</div>
+      </div>
+    </div>
+    <nav class="nav-tabs">
+      <div class="nav-tab on"  onclick="filterTab(this,'all')">All News</div>
+      <div class="nav-tab" onclick="filterTab(this,'Breaking')">Breaking</div>
+      <div class="nav-tab" onclick="filterTab(this,'Cyber')">Cybersecurity</div>
+      <div class="nav-tab" onclick="filterTab(this,'Threat')">Threats</div>
+      <div class="nav-tab" onclick="filterTab(this,'AI')">AI & Tech</div>
+      <div class="nav-tab" onclick="filterTab(this,'Gadget')">Gadgets</div>
+      <div class="nav-tab" onclick="filterTab(this,'Review')">Reviews</div>
+    </nav>
+  </div>
+</header>
+
+<!-- LOGIN MODAL -->
+<div class="modal" id="login-modal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="document.getElementById('login-modal').classList.remove('show'); document.getElementById('login-email').value=''; document.getElementById('login-password').value='';">×</button>
+    <div class="modal-title"><span>Cyber</span>Sage<span style="color:var(--pink)">Saga</span> · <span style="color:var(--violet)">Admin</span></div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-input" id="login-email" placeholder="admin@cybersagesaga.com" type="email">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" id="login-password" placeholder="••••••••" type="password">
+    </div>
+    <button class="login-btn" onclick="loginUser()">LOGIN →</button>
+    <div class="login-error" id="login-error"></div>
+    <p style="font-family:var(--fm);font-size:12px;color:var(--text3);margin-top:20px;text-align:center;line-height:1.6">
+      First time? Create an account with your email.<br>You'll get a setup link via email.
+    </p>
+  </div>
+</div>
+
+<!-- PAGES -->
+
+<!-- PAGE: HOME -->
+<div class="page active" id="page-home">
+  <div class="site-wrap">
+    <div class="ai-brief">
+      <div class="ai-icon">🤖</div>
+      <div style="flex:1">
+        <div class="ai-label">◈ CyberSageSaga · AI Daily Briefing</div>
+        <div class="ai-body" id="brief-text">
+          <div class="loading-dots">
+            <div class="ld ld1"></div><div class="ld ld2"></div><div class="ld ld3"></div>
+          </div>
+        </div>
+      </div>
+      <button class="ai-refresh" id="rbtn" onclick="generateBriefing()">↺ Refresh</button>
+    </div>
+
+    <div class="content-grid">
+      <div>
+        <div id="hero-area"></div>
+        <div class="sec-label" id="feed-label">LATEST STORIES</div>
+        <div id="news-feed"></div>
+      </div>
+
+      <aside class="sidebar">
+        <div class="sbox sbox-threats">
+          <div class="sbox-label sl-p">◉ Active Threats</div>
+          <div id="threats-list"></div>
+        </div>
+        <div class="sbox sbox-prices">
+          <div class="sbox-label sl-g">◈ Market & Prices</div>
+          <div id="prices-list"></div>
+        </div>
+        <div class="sbox sbox-trending">
+          <div class="sbox-label sl-c">▲ Trending Now</div>
+          <div id="trending-list"></div>
+        </div>
+        <div class="sbox sbox-nl">
+          <div class="sbox-label sl-v">✦ Newsletter</div>
+          <p class="nl-desc">Get CyberSageSaga daily intel in your inbox — free.</p>
+          <input class="nl-in" id="nl-email" placeholder="your@email.com" type="email">
+          <button class="nl-btn" onclick="subscribeNewsletter()">SUBSCRIBE →</button>
+          <div class="nl-ok" id="nl-ok">✓ Welcome! Check your inbox.</div>
+        </div>
+        <div class="sbox sbox-ask">
+          <div class="sbox-label sl-e">◈ Ask AI Anything</div>
+          <textarea class="ask-in-sb" id="ask-sb" placeholder="Ask about any tech or cyber topic..."></textarea>
+          <button class="ask-sb-btn" onclick="askAI()">ASK AI →</button>
+        </div>
+      </aside>
+    </div>
+  </div>
+  <footer class="footer">
+    <div class="f-brand"><span style="color:var(--cyan)">Cyber</span><span>Sage</span><span style="color:var(--pink)">Saga</span></div>
+    <div class="f-info"><span>cybersagesaga.com</span><br>Your Trusted Tech & Cyber Intelligence · Est. 2026</div>
+  </footer>
+</div>
+
+<!-- PAGE: ARTICLE DETAIL -->
+<div class="page" id="page-article">
+  <div class="article-wrap">
+    <button class="back-btn" onclick="showPage('home')">Back to CyberSageSaga</button>
+    <div class="article-grid">
+      <div>
+        <img class="article-hero-img" id="art-img" src="" alt="">
+        <div class="article-header">
+          <span class="badge" id="art-badge"></span>
+          <h1 id="art-title"></h1>
+          <div class="article-byline">
+            <span class="byline-author" id="art-author"></span>
+            <span id="art-time"></span>
+            <span id="art-read"></span>
+          </div>
+        </div>
+        <div class="article-body" id="art-body"></div>
+        <div class="article-tags" id="art-tags"></div>
+
+        <div class="mt32">
+          <div class="sec-label">Related Stories</div>
+          <div class="related-grid" id="related-grid"></div>
+        </div>
+      </div>
+
+      <aside class="sidebar">
+        <div class="sbox sbox-threats">
+          <div class="sbox-label sl-p">◉ Active Threats</div>
+          <div id="art-threats"></div>
+        </div>
+        <div class="sbox sbox-nl">
+          <div class="sbox-label sl-v">✦ Newsletter</div>
+          <p class="nl-desc">Daily intel drops in your inbox — free.</p>
+          <input class="nl-in" id="nl-email2" placeholder="your@email.com" type="email">
+          <button class="nl-btn" onclick="subscribeNewsletter2()">SUBSCRIBE →</button>
+          <div class="nl-ok" id="nl-ok2">✓ Subscribed!</div>
+        </div>
+        <div class="sbox sbox-ask">
+          <div class="sbox-label sl-e">◈ Ask AI about this article</div>
+          <textarea class="ask-in-sb" id="ask-art" placeholder="Ask anything about this story..."></textarea>
+          <button class="ask-sb-btn" onclick="askArtAI()">ASK AI →</button>
+        </div>
+      </aside>
+    </div>
+  </div>
+  <footer class="footer">
+    <div class="f-brand"><span style="color:var(--cyan)">Cyber</span><span>Sage</span><span style="color:var(--pink)">Saga</span></div>
+    <div class="f-info"><span>cybersagesaga.com</span><br>Your Trusted Tech & Cyber Intelligence · Est. 2026</div>
+  </footer>
+</div>
+
+<!-- PAGE: ADMIN -->
+<div class="page" id="page-admin">
+  <div class="admin-wrap">
+    <div class="admin-header">
+      <div class="admin-title"><span>Cyber</span>Sage<span style="color:var(--pink)">Saga</span> · <span>Admin</span></div>
+      <button class="back-btn" style="margin:0" onclick="showPage('home')">← Back to Site</button>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card sc1"><div class="stat-val" id="stat-total">0</div><div class="stat-lbl">Total Articles</div></div>
+      <div class="stat-card sc2"><div class="stat-val" id="stat-today">0</div><div class="stat-lbl">Published Today</div></div>
+      <div class="stat-card sc3"><div class="stat-val">7</div><div class="stat-lbl">Categories</div></div>
+      <div class="stat-card sc4"><div class="stat-val" id="stat-subs">0</div><div class="stat-lbl">Subscribers</div></div>
+    </div>
+
+    <div class="admin-grid">
+      <div class="form-card">
+        <div class="form-title">POST NEW ARTICLE</div>
+        <div class="form-group">
+          <label class="form-label">Headline *</label>
+          <input class="form-input" id="f-title" placeholder="Write a compelling headline...">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Category *</label>
+            <select class="form-select" id="f-cat">
+              <option value="">Select category</option>
+              <option value="Breaking">Breaking</option>
+              <option value="Cyber">Cybersecurity</option>
+              <option value="Threat">Threat Intel</option>
+              <option value="AI">AI & Tech</option>
+              <option value="Gadget">Gadgets</option>
+              <option value="Review">Review</option>
+              <option value="Price Alert">Price Alert</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Read Time</label>
+            <input class="form-input" id="f-read" placeholder="e.g. 4 min">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Summary (for feed)</label>
+          <input class="form-input" id="f-summary" placeholder="One-line summary...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Author</label>
+          <input class="form-input" id="f-author" placeholder="e.g. CyberSageSaga Staff">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Article Body *</label>
+          <textarea class="form-textarea" id="f-body" placeholder="Write the full article content here...&#10;&#10;Use **bold** for emphasis.&#10;&#10;Start sections with ## Title"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tags (comma separated)</label>
+          <input class="form-input" id="f-tags" placeholder="e.g. ransomware, CVE, India">
+        </div>
+        <button class="submit-btn" onclick="publishArticle()">PUBLISH ARTICLE</button>
+      </div>
+
+      <div>
+        <div class="articles-panel">
+          <div class="articles-panel-header">
+            <div class="panel-title">ALL ARTICLES</div>
+            <span style="font-family:var(--fm);font-size:10px;color:var(--text3)" id="art-count-lbl"></span>
+          </div>
+          <div id="admin-articles-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: PITCH -->
+<div class="page" id="page-pitch">
+  <div class="pitch-wrap">
+    <div class="pitch-header">
+      <div class="pitch-title">Submit a Pitch</div>
+      <div class="pitch-subtitle">Have a story idea? We'd love to hear from you.</div>
+    </div>
+
+    <div class="pitch-grid">
+      <div class="pitch-form-card">
+        <div class="pitch-form-title">Pitch Your Story</div>
+        <div class="form-group">
+          <label class="form-label">Your Name *</label>
+          <input class="form-input" id="pitch-name" placeholder="Full name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email *</label>
+          <input class="form-input" id="pitch-email" placeholder="your@email.com" type="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone (optional)</label>
+          <input class="form-input" id="pitch-phone" placeholder="+91 ...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Your Role</label>
+          <select class="form-select" id="pitch-role">
+            <option value="">Select your role</option>
+            <option value="journalist">Journalist</option>
+            <option value="researcher">Security Researcher</option>
+            <option value="pr">PR Professional</option>
+            <option value="company">Company/Organization</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Story Title *</label>
+          <input class="form-input" id="pitch-title" placeholder="Headline for your story">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select class="form-select" id="pitch-cat">
+            <option value="">Select category</option>
+            <option value="Cyber">Cybersecurity</option>
+            <option value="Threat">Threat Intel</option>
+            <option value="AI">AI & Tech</option>
+            <option value="Gadget">Gadgets</option>
+            <option value="Review">Review</option>
+            <option value="Policy">Policy</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Pitch Details *</label>
+          <textarea class="form-textarea" id="pitch-body" placeholder="Tell us about your story idea. What makes it newsworthy? Why should CyberSageSaga cover it?&#10;&#10;Include any relevant links, data, or context."></textarea>
+        </div>
+        <button class="submit-btn" onclick="submitPitch()">SUBMIT PITCH →</button>
+      </div>
+
+      <div class="pitch-sidebar-card">
+        <div class="pitch-sidebar-title">Guidelines</div>
+        <div class="pitch-guidelines">
+          <h4>What We Cover</h4>
+          <ul>
+            <li>Breaking cybersecurity threats & vulnerabilities</li>
+            <li>AI & ML developments & impacts</li>
+            <li>Gadget reviews & tech news</li>
+            <li>India-focused tech stories</li>
+            <li>Security policy & regulation</li>
+          </ul>
+
+          <h4>Pitch Tips</h4>
+          <ul>
+            <li>Be specific & newsworthy</li>
+            <li>Include sources or evidence</li>
+            <li>Tell us your story angle</li>
+            <li>Keep it under 500 words</li>
+            <li>Provide contact info</li>
+          </ul>
+
+          <h4>Response Time</h4>
+          <p style="margin-top:12px">We review all pitches within 48 hours. If we're interested, we'll reach out directly.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer class="footer">
+    <div class="f-brand"><span style="color:var(--cyan)">Cyber</span><span>Sage</span><span style="color:var(--pink)">Saga</span></div>
+    <div class="f-info"><span>cybersagesaga.com</span><br>Your Trusted Tech & Cyber Intelligence · Est. 2026</div>
+  </footer>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ════════════════════════════════════════
+   FIREBASE CONFIG — REPLACE WITH YOUR KEYS
+════════════════════════════════════════ */
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAzsbnhNIz3xP206pwAdQXdI5ZneF_HUio",
+  authDomain: "cybersagesaga-68c21.firebaseapp.com",
+  databaseURL: "https://cybersagesaga-68c21-default-rtdb.firebaseio.com",
+  projectId: "cybersagesaga-68c21",
+  storageBucket: "cybersagesaga-68c21.firebasestorage.app",
+  messagingSenderId: "696131600761",
+  appId: "1:696131600761:web:faa82ebbcf120daa9b2fa8",
+  measurementId: "G-LEVYG7Y1M5"
+};
+
+// Initialize Firebase
+let auth, db;
+let isFirebaseConfigured = false;
+
+try {
+  // Initialize Firebase regardless
+  firebase.initializeApp(firebaseConfig);
+  auth = firebase.auth();
+  db = firebase.database();
+  
+  // Check if config has placeholder values
+  if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY" && firebaseConfig.projectId !== "YOUR_PROJECT_ID") {
+    isFirebaseConfigured = true;
+    console.log('✅ Firebase configured successfully');
+  } else {
+    isFirebaseConfigured = false;
+    console.warn('⚠️ Firebase config not set up. Replace YOUR_* values with your Firebase credentials.');
+  }
+} catch (e) {
+  console.error('Firebase init error:', e.message);
+  isFirebaseConfigured = false;
+}
+
+/* ════════════════════════════════════════
+   DATA & STATE
+════════════════════════════════════════ */
+const IMGS = {
+  breaking: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=900&q=75',
+  cyber:    'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=900&q=75',
+  ai:       'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=900&q=75',
+  gadget:   'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=900&q=75',
+  threat:   'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=900&q=75',
+  review:   'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=900&q=75',
+  price:    'https://images.unsplash.com/photo-1580910051074-3eb694886505?w=900&q=75',
+  default:  'https://images.unsplash.com/photo-1518770660439-4636190af475?w=900&q=75',
+};
+
+let articles = [];
+let currentUser = null;
+let currentTab = 'all';
+let subscribers = [];
+
+const THREATS = [
+  { sev:'sc', name:'CVE-2026-1234', desc:'Cisco IOS XE RCE · CVSS 9.8' },
+  { sev:'sh', name:'LockBit 4.0',   desc:'Finance ransomware · active' },
+  { sev:'sh', name:'Astaroth Kit',  desc:'2FA bypass campaign · live' },
+  { sev:'sm', name:'DNS Hijack',    desc:'800+ domains affected' },
+];
+const PRICES = [
+  { n:'BTC',      v:'$97,420',   c:'up' },
+  { n:'NVDA',     v:'+2.3%',     c:'up' },
+  { n:'iPhone 17',v:'₹1,34,900', c:'dn' },
+  { n:'S26 Ultra',v:'₹1,29,999', c:'dn' },
+  { n:'MacBook M4',v:'₹1,99,900',c:'wr' },
+  { n:'AAPL',     v:'-0.5%',     c:'dn' },
+];
+const TRENDING = [
+  'CVE-2026-1234 Cisco exploit',
+  'LockBit 4.0 ransomware',
+  'Samsung Galaxy S26 specs',
+  'iPhone 17 India price',
+  'MacBook M4 Max review',
+  'Gemini Ultra 2 launch',
+];
+
+/* ════════════════════════════════════════
+   AUTH
+════════════════════════════════════════ */
+if (isFirebaseConfigured) {
+  auth.onAuthStateChanged(user => {
+    currentUser = user;
+    updateAuthUI();
+    if (user) {
+      loadArticles();
+      loadSubscribers();
+    }
+  });
+}
+
+function updateAuthUI() {
+  const adminBtn = document.getElementById('admin-btn-main');
+  const authInfo = document.getElementById('auth-info');
+  if (currentUser) {
+    adminBtn.style.display = 'none';
+    authInfo.style.display = 'block';
+    document.getElementById('user-email').textContent = currentUser.email;
+  } else {
+    adminBtn.style.display = 'block';
+    authInfo.style.display = 'none';
+  }
+}
+
+function showAdminOrLogin() {
+  if (currentUser) {
+    showPage('admin');
+  } else {
+    document.getElementById('login-modal').classList.add('show');
+  }
+}
+
+function loginUser() {
+  const email = document.getElementById('login-email').value.trim();
+  const pwd = document.getElementById('login-password').value.trim();
+  if (!email || !pwd) { 
+    showError('Please enter email and password.'); 
+    return; 
+  }
+  
+  if (!isFirebaseConfigured) {
+    showError('⚠️ Firebase not configured. Update Firebase config in HTML (line 1360) with your credentials from Firebase Console.');
+    return;
+  }
+  
+  auth.signInWithEmailAndPassword(email, pwd)
+    .then(() => {
+      document.getElementById('login-modal').classList.remove('show');
+      currentUser = auth.currentUser;
+      updateAuthUI();
+      showPage('admin');
+      showToast('✓ Logged in successfully!', '#10b981');
+    })
+    .catch(e => {
+      const errorMsg = e.code === 'auth/user-not-found' 
+        ? 'Email not found. Create user in Firebase Console first.'
+        : e.code === 'auth/wrong-password'
+        ? 'Wrong password.'
+        : e.message || 'Login failed.';
+      showError(errorMsg);
+    });
+}
+
+function logout() {
+  auth.signOut().then(() => showPage('home')).catch(e => alert(e.message));
+}
+
+function showError(msg) {
+  const err = document.getElementById('login-error');
+  err.textContent = msg;
+  err.style.display = 'block';
+  setTimeout(() => { err.style.display = 'none'; }, 4000);
+}
+
+/* ════════════════════════════════════════
+   FIREBASE: ARTICLES
+════════════════════════════════════════ */
+function loadArticles() {
+  if (!isFirebaseConfigured) {
+    console.log('Demo mode: Using sample articles only');
+    renderHome('all');
+    renderSidebar();
+    return;
+  }
+  db.ref('articles').orderByChild('timestamp').limitToLast(100).on('value', snap => {
+    articles = [];
+    snap.forEach(child => {
+      articles.push({ id: child.key, ...child.val() });
+    });
+    articles.reverse();
+    renderHome('all');
+    renderSidebar();
+  });
+}
+
+function publishArticle() {
+  if (!currentUser) { showToast('⚠ You must be logged in.', '#fbbf24'); return; }
+  const title  = document.getElementById('f-title').value.trim();
+  const cat    = document.getElementById('f-cat').value;
+  const read   = document.getElementById('f-read').value.trim() || '3 min';
+  const summary= document.getElementById('f-summary').value.trim();
+  const author = document.getElementById('f-author').value.trim() || 'CyberSageSaga Staff';
+  const body   = document.getElementById('f-body').value.trim();
+  const tags   = document.getElementById('f-tags').value.trim();
+  if (!title || !cat || !body) { showToast('⚠ Please fill in Headline, Category, and Body.', '#fbbf24'); return; }
+  
+  const newArt = {
+    title, cat, summary: summary || title, body, author, tags, read,
+    timestamp: Date.now(),
+    ts: 'Just now'
+  };
+  
+  if (!isFirebaseConfigured) {
+    showToast('⚠️ Firebase not configured. Article not saved. See deployment guide.', '#fbbf24');
+    return;
+  }
+  
+  db.ref('articles').push(newArt).then(() => {
+    ['f-title','f-cat','f-read','f-summary','f-author','f-body','f-tags'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    showToast('✓ Article published!', '#10b981');
+    renderAdmin();
+  }).catch(e => showToast('Error: ' + (e.message || 'Failed to publish'), '#f87171'));
+}
+
+function deleteArticle(id) {
+  if (!confirm('Delete this article?')) return;
+  if (!isFirebaseConfigured) {
+    showToast('⚠️ Firebase not configured. Cannot delete.', '#fbbf24');
+    return;
+  }
+  db.ref('articles/' + id).remove()
+    .then(() => {
+      showToast('Article deleted.', '#f87171');
+      renderAdmin();
+    })
+    .catch(e => showToast('Error: ' + e.message, '#f87171'));
+}
+
+/* ════════════════════════════════════════
+   FIREBASE: SUBSCRIBERS & PITCHES
+════════════════════════════════════════ */
+function loadSubscribers() {
+  if (!isFirebaseConfigured) {
+    document.getElementById('stat-subs').textContent = '0';
+    return;
+  }
+  db.ref('subscribers').on('value', snap => {
+    subscribers = [];
+    snap.forEach(child => { subscribers.push(child.val()); });
+    document.getElementById('stat-subs').textContent = subscribers.length;
+  });
+}
+
+function subscribeNewsletter() {
+  const email = document.getElementById('nl-email').value.trim();
+  if (!email) return;
+  
+  if (!isFirebaseConfigured) {
+    showToast('✓ Demo mode: Email noted (Firebase not configured)', '#22d3ee');
+    document.getElementById('nl-ok').style.display='block';
+    document.getElementById('nl-email').value='';
+    setTimeout(()=>document.getElementById('nl-ok').style.display='none',4000);
+    return;
+  }
+  
+  db.ref('subscribers').push({ email, subscribedAt: Date.now() })
+    .then(() => {
+      document.getElementById('nl-ok').style.display='block';
+      document.getElementById('nl-email').value='';
+      setTimeout(()=>document.getElementById('nl-ok').style.display='none',4000);
+    })
+    .catch(e => showToast('Error: ' + e.message, '#f87171'));
+}
+function subscribeNewsletter2() {
+  const email = document.getElementById('nl-email2').value.trim();
+  if (!email) return;
+  
+  if (!isFirebaseConfigured) {
+    showToast('✓ Demo mode: Email noted (Firebase not configured)', '#22d3ee');
+    document.getElementById('nl-ok2').style.display='block';
+    document.getElementById('nl-email2').value='';
+    setTimeout(()=>document.getElementById('nl-ok2').style.display='none',4000);
+    return;
+  }
+  
+  db.ref('subscribers').push({ email, subscribedAt: Date.now() })
+    .then(() => {
+      document.getElementById('nl-ok2').style.display='block';
+      document.getElementById('nl-email2').value='';
+      setTimeout(()=>document.getElementById('nl-ok2').style.display='none',4000);
+    })
+    .catch(e => showToast('Error: ' + e.message, '#f87171'));
+}
+
+function submitPitch() {
+  const name = document.getElementById('pitch-name').value.trim();
+  const email = document.getElementById('pitch-email').value.trim();
+  const phone = document.getElementById('pitch-phone').value.trim();
+  const role = document.getElementById('pitch-role').value;
+  const title = document.getElementById('pitch-title').value.trim();
+  const cat = document.getElementById('pitch-cat').value;
+  const body = document.getElementById('pitch-body').value.trim();
+  
+  if (!name || !email || !title || !body) { 
+    showToast('⚠ Please fill in all required fields.', '#fbbf24'); 
+    return; 
+  }
+  
+  const pitch = {
+    name, email, phone, role, title, cat, body,
+    submittedAt: Date.now()
+  };
+  
+  if (!isFirebaseConfigured) {
+    showToast('⚠️ Firebase not configured. Your pitch can\'t be saved. See deployment guide.', '#fbbf24');
+    // Still clear form to show something happened
+    document.getElementById('pitch-name').value='';
+    document.getElementById('pitch-email').value='';
+    document.getElementById('pitch-phone').value='';
+    document.getElementById('pitch-role').value='';
+    document.getElementById('pitch-title').value='';
+    document.getElementById('pitch-cat').value='';
+    document.getElementById('pitch-body').value='';
+    return;
+  }
+  
+  db.ref('pitches').push(pitch).then(() => {
+    document.getElementById('pitch-name').value='';
+    document.getElementById('pitch-email').value='';
+    document.getElementById('pitch-phone').value='';
+    document.getElementById('pitch-role').value='';
+    document.getElementById('pitch-title').value='';
+    document.getElementById('pitch-cat').value='';
+    document.getElementById('pitch-body').value='';
+    showToast('✓ Pitch submitted! We\'ll review it within 48 hours.', '#10b981');
+    setTimeout(() => showPage('home'), 2000);
+  }).catch(e => {
+    showToast('Error: ' + (e.message || 'Pitch submission failed'), '#f87171');
+  });
+}
+
+/* ════════════════════════════════════════
+   RENDERING
+════════════════════════════════════════ */
+function getImg(cat) {
+  const c = (cat||'').toLowerCase();
+  if (c.includes('break')) return IMGS.breaking;
+  if (c.includes('cyber')||c.includes('hack')) return IMGS.cyber;
+  if (c.includes('ai')||c.includes('ml')||c.includes('tech')) return IMGS.ai;
+  if (c.includes('gadget')) return IMGS.gadget;
+  if (c.includes('threat')||c.includes('crit')||c.includes('high')||c.includes('med')) return IMGS.threat;
+  if (c.includes('review')) return IMGS.review;
+  if (c.includes('price')||c.includes('deal')||c.includes('comp')) return IMGS.price;
+  return IMGS.default;
+}
+
+function badgeClass(cat) {
+  const c = (cat||'').toLowerCase();
+  if (c.includes('break')||c.includes('crit')||c.includes('threat')) return 'b-red';
+  if (c.includes('cyber')||c.includes('hack')) return 'b-cyan';
+  if (c.includes('ai')||c.includes('ml'))  return 'b-purple';
+  if (c.includes('review'))                return 'b-green';
+  if (c.includes('gadget'))                return 'b-gold';
+  if (c.includes('price')||c.includes('deal')||c.includes('comp')) return 'b-pink';
+  if (c.includes('high')||c.includes('med')) return 'b-gold';
+  return 'b-cyan';
+}
+
+function renderHome(tab) {
+  let list = articles;
+  if (tab !== 'all') {
+    list = articles.filter(a => a.cat === tab);
+  }
+  if (!list.length) {
+    document.getElementById('hero-area').innerHTML = '';
+    document.getElementById('news-feed').innerHTML = '<p style="color:var(--text3);font-family:var(--fm);font-size:12px;padding:24px 0">No articles yet.</p>';
+    return;
+  }
+  const main = list[0];
+  const subs  = list.slice(1, 4);
+  const rest  = list.slice(4);
+
+  let heroHtml = `
+    <div class="hero-main" onclick="openArticle('${main.id}')">
+      <img class="hero-img" src="${getImg(main.cat)}" alt="" loading="lazy" onerror="this.style.display='none'">
+      <div class="hero-overlay"></div>
+      <div class="hero-body">
+        <span class="badge ${badgeClass(main.cat)}">${main.cat}</span>
+        <h1>${main.title}</h1>
+        <p>${main.summary}</p>
+        <div class="hero-meta"><span>${main.ts}</span><span>·</span><span>${main.read} read</span><span>·</span><span>${main.author}</span></div>
+      </div>
+    </div>`;
+
+  if (subs.length) {
+    heroHtml += `<div class="sub-hero-grid">`;
+    subs.forEach(s => {
+      heroHtml += `
+        <div class="sub-card" onclick="openArticle('${s.id}')">
+          <img class="sub-img" src="${getImg(s.cat)}" alt="" loading="lazy" onerror="this.style.background='#0e2035'">
+          <div class="sub-body">
+            <span class="badge ${badgeClass(s.cat)}">${s.cat}</span>
+            <h3>${s.title}</h3>
+            <p>${s.summary}</p>
+            <div class="sub-meta">${s.ts} · ${s.read}</div>
+          </div>
+        </div>`;
+    });
+    heroHtml += `</div>`;
+  }
+
+  document.getElementById('hero-area').innerHTML = heroHtml;
+  document.getElementById('feed-label').textContent = tab === 'all' ? 'LATEST STORIES' : 'MORE STORIES';
+  document.getElementById('news-feed').innerHTML = rest.map(a => `
+    <div class="news-item" onclick="openArticle('${a.id}')">
+      <img class="ni-thumb" src="${getImg(a.cat)}" alt="" loading="lazy" onerror="this.style.background='#0e2035'">
+      <div class="ni-body">
+        <span class="badge ${badgeClass(a.cat)}">${a.cat}</span>
+        <div class="ni-title">${a.title}</div>
+        <div class="ni-preview">${a.summary}</div>
+        <div class="ni-meta"><span>${a.ts}</span><span class="ni-dot"></span><span>${a.read} read</span></div>
+      </div>
+    </div>`).join('');
+}
+
+function filterTab(el, tab) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  currentTab = tab;
+  renderHome(tab);
+}
+
+function openArticle(id) {
+  const a = articles.find(x => x.id === id);
+  if (!a) return;
+  document.getElementById('art-img').src    = getImg(a.cat);
+  document.getElementById('art-badge').className = 'badge ' + badgeClass(a.cat);
+  document.getElementById('art-badge').textContent = a.cat;
+  document.getElementById('art-title').textContent  = a.title;
+  document.getElementById('art-author').textContent = a.author;
+  document.getElementById('art-time').textContent   = a.ts;
+  document.getElementById('art-read').textContent   = a.read + ' read';
+
+  let html = a.body
+    .split('\n').map(line => {
+      if (line.startsWith('## ')) return `<h2>${line.slice(3)}</h2>`;
+      if (line.trim() === '')     return '';
+      return `<p>${line}</p>`;
+    }).join('')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/`(.*?)`/g, '<code>$1</code>')
+    .replace(/<highlight>(.*?)<\/highlight>/gs, '<div class="highlight">$1</div>');
+  document.getElementById('art-body').innerHTML = html;
+
+  const tags = (a.tags||'').split(',').filter(Boolean);
+  document.getElementById('art-tags').innerHTML = tags.map(t => `<span class="article-tag">${t.trim()}</span>`).join('');
+
+  document.getElementById('art-threats').innerHTML = THREATS.map(t => `
+    <div class="thr-row"><div class="sev ${t.sev}"></div>
+    <div><div class="thr-name">${t.name}</div><div class="thr-desc">${t.desc}</div></div></div>`).join('');
+
+  const related = articles.filter(x => x.id !== id && x.cat === a.cat).slice(0, 2);
+  const fallback = articles.filter(x => x.id !== id).slice(0, 2 - related.length);
+  const rel = [...related, ...fallback].slice(0, 2);
+  document.getElementById('related-grid').innerHTML = rel.map(r => `
+    <div class="related-card" onclick="openArticle('${r.id}')">
+      <img src="${getImg(r.cat)}" alt="" loading="lazy" onerror="this.style.background='#0e2035'">
+      <div class="related-card-body">
+        <span class="badge ${badgeClass(r.cat)}" style="margin-bottom:6px">${r.cat}</span>
+        <h4>${r.title}</h4>
+        <p>${r.ts} · ${r.read}</p>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('ask-art').placeholder = `Ask about "${a.title.substring(0,40)}..."`;
+
+  showPage('article');
+}
+
+function renderAdmin() {
+  document.getElementById('stat-total').textContent = articles.length;
+  const today = new Date().toDateString();
+  document.getElementById('stat-today').textContent = articles.filter(a => {
+    const d = new Date(a.timestamp);
+    return d.toDateString() === today;
+  }).length;
+  document.getElementById('art-count-lbl').textContent = articles.length + ' articles';
+  document.getElementById('admin-articles-list').innerHTML = articles.slice(0, 20).map(a => `
+    <div class="article-row">
+      <img class="ar-thumb" src="${getImg(a.cat)}" alt="" onerror="this.style.background='#0e2035'">
+      <div class="ar-info">
+        <div class="ar-title">${a.title}</div>
+        <div class="ar-meta">${a.cat} · ${a.ts} · ${a.read}</div>
+      </div>
+      <div class="ar-actions">
+        <button class="ar-btn ar-view" onclick="openArticle('${a.id}');showPage('article')">View</button>
+        <button class="ar-btn ar-del"  onclick="deleteArticle('${a.id}')">Delete</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderSidebar() {
+  document.getElementById('threats-list').innerHTML = THREATS.map(t => `
+    <div class="thr-row"><div class="sev ${t.sev}"></div>
+    <div><div class="thr-name">${t.name}</div><div class="thr-desc">${t.desc}</div></div></div>`).join('');
+  document.getElementById('prices-list').innerHTML = PRICES.map(p => `
+    <div class="prc-row"><span class="prc-name">${p.n}</span>
+    <span class="prc-val ${p.c}">${p.v}</span></div>`).join('');
+  document.getElementById('trending-list').innerHTML = TRENDING.map((t,i) => `
+    <div class="trnd-row" onclick="document.getElementById('ask-sb').value='Tell me about: ${t}';document.getElementById('ask-sb').focus()">
+      <span class="trnd-num">${String(i+1).padStart(2,'0')}</span>
+      <span class="trnd-text">${t}</span>
+    </div>`).join('');
+}
+
+function renderTicker() {
+  const items = [
+    {l:'BTC',v:'$97,420',c:'up'},{l:'NVDA',v:'+2.3%',c:'up'},{l:'MSFT',v:'-0.8%',c:'dn'},
+    {l:'CVE-2026-1234',v:'CRITICAL',c:'dn'},{l:'S26 Ultra',v:'200MP Leak',c:'wr'},
+    {l:'ETH',v:'$3,820',c:'up'},{l:'iPhone 17',v:'₹1,34,900',c:'dn'},
+    {l:'GOOGL',v:'+1.1%',c:'up'},{l:'MacBook M4',v:'₹15K Off',c:'up'},{l:'AAPL',v:'-0.5%',c:'dn'},
+  ];
+  const html = items.map(i =>
+    `<div class="tk"><span class="tkl">${i.l}</span><span class="tkv ${i.c}">${i.v}</span></div><span class="tksep"> · </span>`
+  ).join('');
+  document.getElementById('ticker').innerHTML = html + html;
+}
+
+/* ════════════════════════════════════════
+   AI & MISC
+════════════════════════════════════════ */
+async function generateBriefing() {
+  const btn = document.getElementById('rbtn');
+  const txt = document.getElementById('brief-text');
+  btn.disabled = true;
+  txt.innerHTML = '<div class="loading-dots"><div class="ld ld1"></div><div class="ld ld2"></div><div class="ld ld3"></div></div>';
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514', max_tokens:1000,
+        system:'You are the AI editor of CyberSageSaga (cybersagesaga.com), a premium tech and cybersecurity magazine. Write a punchy 2–3 sentence daily briefing: one critical cybersecurity threat, one major AI/tech development, one gadget/consumer tech update for Indian readers. Be sharp. Bold key names with **name**. No emojis.',
+        messages:[{role:'user',content:'Generate the CyberSageSaga AI daily briefing for today.'}]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.[0]?.text || '';
+    txt.innerHTML = text ? text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>') : 'Briefing unavailable — tap Refresh.';
+  } catch(e) {
+    txt.innerHTML = '<strong>CVE-2026-1234</strong> is being actively exploited across 100K+ Cisco IOS XE routers. <strong>Gemini Ultra 2</strong> launches with real-time video AI. <strong>iPhone 17</strong> India pricing at ₹1,34,900.';
+  }
+  btn.disabled = false;
+}
+
+function triggerGlitch() {
+  const el = document.getElementById('brand-name');
+  el.classList.remove('glitching');
+  void el.offsetWidth;
+  el.classList.add('glitching');
+  setTimeout(() => el.classList.remove('glitching'), 420);
+}
+
+function showToast(msg, color) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.color = color || 'var(--emerald)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (name === 'admin' && currentUser) renderAdmin();
+}
+
+function askAI()  { const q = document.getElementById('ask-sb').value.trim();  if (q) alert('AI: "' + q + '" — Connect to Claude API for live answers.'); }
+function askArtAI() { const q = document.getElementById('ask-art').value.trim(); if (q) alert('AI: "' + q + '" — Connect to Claude API for live answers.'); }
+
+/* ════════════════════════════════════════
+   INIT
+════════════════════════════════════════ */
+(function init() {
+  const d = new Date();
+  document.getElementById('date-str').textContent =
+    d.toLocaleDateString('en-IN', {weekday:'short',day:'numeric',month:'short',year:'numeric'}).toUpperCase();
+  renderTicker();
+  renderSidebar();
+  renderHome('all');
+  generateBriefing();
+  setTimeout(triggerGlitch, 1600);
+  setInterval(triggerGlitch, 7000);
+})();
+</script>
+</body>
+</html>
